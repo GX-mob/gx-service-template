@@ -1,5 +1,5 @@
 import { FastifyInstanceToken, Inject, Service } from "fastify-decorators";
-import IORedis, { Redis } from "ioredis";
+import { Redis } from "ioredis";
 import schemapack from "schemapack";
 import { FastifyInstance } from "fastify";
 
@@ -15,7 +15,7 @@ type schemapackBuilt = {
 @Service()
 export class CacheService {
   @Inject(FastifyInstanceToken)
-  private instance!: FastifyInstance;
+  public instance!: FastifyInstance;
 
   public redis: Redis = this.instance.redis;
   public defaultLifetime = 15 * 60 * 1000;
@@ -88,7 +88,7 @@ export class CacheService {
     return this.redis.del(`${ns}:${key}`);
   }
 
-  sanitizeKey(key) {
+  sanitizeKey(key: any) {
     return typeof key === "string" ? key : JSON.stringify(key);
   }
 
