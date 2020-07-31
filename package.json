@@ -1,0 +1,87 @@
+{
+  "name": "http-template-service",
+  "version": "0.0.1",
+  "description": "GX http service template",
+  "main": "dist/bin/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GX-mob/http-service-template.git"
+  },
+  "scripts": {
+    "start": "node ./dist/bin/index.js",
+    "test": "NODE_ENV=test jest --verbose --runInBand",
+    "test:ci": "NODE_ENV=test jest --runInBand --forceExit --coverage",
+    "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
+    "build": "rimraf dist && tsc --sourceMap -p ./ && copyfiles -u 1 \"src/**/*.css\" ./dist",
+    "dev": "NODE_ENV=development nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node' --files ./src/bin/index.ts",
+    "compile-schemas": "json2ts -i ./src/schemas -o ./src/types"
+  },
+  "author": "ferco0",
+  "license": "MIT",
+  "dependencies": {
+    "@brazilian-utils/brazilian-utils": "^1.0.0-rc.10",
+    "@google-cloud/storage": "^5.1.2",
+    "@types/twilio": "^2.11.0",
+    "fastify": "^3.1.1",
+    "fastify-circuit-breaker": "^1.0.1",
+    "fastify-decorators": "^3.1.0",
+    "fastify-multipart": "^2.0.3",
+    "fastify-plugin": "^2.0.3",
+    "fastify-rate-limit": "^4.0.2",
+    "fastify-redis": "^4.0.3",
+    "file-type": "^14.6.2",
+    "html-minifier": "^4.0.0",
+    "ioredis": "^4.17.3",
+    "jpegtran": "^1.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "marked": "^1.1.1",
+    "mongoose": "^5.9.26",
+    "nodemailer": "^6.4.10",
+    "pngquant": "^3.1.0",
+    "reflect-metadata": "^0.1.13",
+    "schemapack": "^1.4.2",
+    "source-map-support": "^0.5.19",
+    "stream-file-type": "^0.5.0",
+    "twilio": "^3.48.1"
+  },
+  "devDependencies": {
+    "@shelf/jest-mongodb": "^1.2.1",
+    "@types/ioredis": "^4.17.2",
+    "@types/jest": "^26.0.8",
+    "@types/mongodb": "^3.5.25",
+    "@types/mongoose": "^5.7.34",
+    "@types/node": "^14.0.27",
+    "@types/nodemailer": "^6.4.0",
+    "@typescript-eslint/eslint-plugin": "^3.7.1",
+    "@typescript-eslint/parser": "^3.7.1",
+    "codecov": "^3.7.2",
+    "copyfiles": "^2.3.0",
+    "dotenv": "^8.2.0",
+    "eslint": "^7.5.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "husky": "^4.2.5",
+    "ioredis-mock": "^4.21.2",
+    "jest": "^26.2.1",
+    "jest-runner-groups": "^2.0.1",
+    "json-schema-to-typescript": "^9.1.1",
+    "lint-staged": "^10.2.11",
+    "nodemon": "^2.0.4",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "stream-buffers": "^3.0.2",
+    "ts-jest": "^26.1.4",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "npm run lint --fix"
+    ]
+  }
+}
