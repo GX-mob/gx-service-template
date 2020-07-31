@@ -1,8 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { configureControllerTest } from "fastify-decorators/testing";
 import StatusController from "./status.controller";
-import { CacheService } from "../services/cache";
-import IORedisMock from "ioredis-mock";
 
 describe("Controller: Status", () => {
   let instance: FastifyInstance;
@@ -10,12 +8,6 @@ describe("Controller: Status", () => {
   beforeEach(async () => {
     instance = await configureControllerTest({
       controller: StatusController,
-      mocks: [
-        {
-          provide: CacheService,
-          useValue: { foo: "bar", redis: new IORedisMock() },
-        },
-      ],
     });
   });
 
