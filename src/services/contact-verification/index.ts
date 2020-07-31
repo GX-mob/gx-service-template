@@ -1,25 +1,32 @@
-import { Service } from "fastify-decorators";
+import { Service, Inject } from "fastify-decorators";
 import {
   isValidEmail,
   isValidMobilePhone,
 } from "@brazilian-utils/brazilian-utils";
 import Twilio from "twilio";
+import { ServiceContext } from "twilio/lib/rest/verify/v2/service";
 
 @Service()
-export class ContactVerificationService {
+class TwilioService {
   public client: Twilio.Twilio;
-  private vsid: any;
+  public verify: ServiceContext;
 
   constructor() {
     const { TWILIO_ASID, TWILIO_TOKEN, TWILIO_EDGE, TWILIO_VSID } = process.env;
-
-    this.vsid = TWILIO_VSID;
 
     this.client = Twilio(TWILIO_ASID, TWILIO_TOKEN, {
       edge: TWILIO_EDGE,
       lazyLoading: true,
     });
+
+    this.verify = this.client.verify.services(TWILIO_VSID);
   }
+}
+
+@Service()
+export class ContactVerificationService {
+  @Inject(TwilioService)
+  public twilio: TwilioService;
   /**
    * Request a contact verification
    * @param target Target to verify, can be an email or mobile phone number
@@ -28,7 +35,7 @@ export class ContactVerificationService {
   public async request(to: string): Promise<string> {
     const channel = this.checkChannel(to);
 
-    const { sid } = await this.verification().verifications.create({
+    const { sid } = await this.twilio.verify.verifications.create({
       to,
       channel,
     });
@@ -48,14 +55,10 @@ export class ContactVerificationService {
     return emailVerify ? "email" : "sms";
   }
 
-  private verification() {
-    return this.client.verify.services(this.vsid);
-  }
-
   public async verify(target: string, code: string): Promise<boolean> {
     this.checkChannel(target);
 
-    const { status } = await this.verification().verificationChecks.create({
+    const { status } = await this.twilio.verify.verificationChecks.create({
       to: target,
       code,
     });
