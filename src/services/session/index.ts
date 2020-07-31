@@ -1,8 +1,6 @@
 import { Service, Inject } from "fastify-decorators";
 import { Types } from "mongoose";
-import { User } from "../../models/user";
 import { Session } from "../../models/session";
-import { Handler } from "../data";
 
 import { DataService } from "../data";
 
