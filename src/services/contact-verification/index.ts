@@ -7,10 +7,11 @@ import Twilio from "twilio";
 import { ServiceContext } from "twilio/lib/rest/verify/v2/service";
 
 @Service()
-class TwilioService {
+export class TwilioService {
   public client: Twilio.Twilio;
   public verify: ServiceContext;
 
+  /* istanbul ignore next */
   constructor() {
     const { TWILIO_ASID, TWILIO_TOKEN, TWILIO_EDGE, TWILIO_VSID } = process.env;
 
@@ -29,14 +30,14 @@ export class ContactVerificationService {
   public twilio: TwilioService;
   /**
    * Request a contact verification
-   * @param target Target to verify, can be an email or mobile phone number
+   * @param to Target to verify, can be an email or mobile phone number
    * @returns {Promise<string>} The id of request
    */
   public async request(to: string): Promise<string> {
     const channel = this.checkChannel(to);
 
     const { sid } = await this.twilio.verify.verifications.create({
-      to,
+      to: channel === "sms" ? `+55${to}` : to,
       channel,
     });
 
