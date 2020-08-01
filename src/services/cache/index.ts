@@ -8,6 +8,11 @@ type schemapackBuilt = {
   decode: (buff: Buffer) => any;
 };
 
+type setOptions = {
+  ex?: number;
+  link?: string[];
+};
+
 /**
  * Cache abstraction
  * First encode/decode by pre built schemapack and fallback to JSON serialization
@@ -17,8 +22,11 @@ export class CacheService {
   @Inject(FastifyInstanceToken)
   public instance!: FastifyInstance;
 
+  private linkPrefix = "__linked@";
+  private separator = ":::";
+
   public redis: Redis = this.instance.redis;
-  public defaultLifetime = 15 * 60 * 1000;
+  public defaultLifetime = String(15 * 60 * 1000);
   public schemas: { [key: string]: schemapackBuilt } = {};
   private schemasStructure: { [key: string]: any } = {};
 
@@ -38,19 +46,38 @@ export class CacheService {
    * @param key Key name
    * @returns Value cached or null
    */
-  // TODO linking keys
   async get(ns: string, key: any) {
-    key = this.sanitizeKey(key);
+    const finalKey = this.key(ns, key);
+    const data: Buffer | string = await this.redis.get(finalKey);
 
-    if (ns in this.schemas) {
-      const data = await this.redis.getBuffer(`${ns}:${key}`);
-
-      return data && this.schemas[ns].decode(data);
+    if (this.isLink(data)) {
+      return this.get(...this.getParentKey(data));
     }
 
-    const data = await this.redis.get(`${ns}:${key}`);
+    if (ns in this.schemas) {
+      return data && this.schemas[ns].decode((data as unknown) as Buffer);
+    }
 
     return JSON.parse(data);
+  }
+
+  private key(namespace: string, key: string) {
+    key = this.sanitizeKey(key);
+    return `${namespace}${this.separator}${key}`;
+  }
+
+  private sanitizeKey(key: any) {
+    return typeof key === "string" ? key : JSON.stringify(key);
+  }
+
+  private isLink(value: any) {
+    return typeof value === "string" && value.startsWith(this.linkPrefix);
+  }
+
+  private getParentKey(value: string): [string, string] {
+    const parentKey = value.replace(this.linkPrefix, "");
+    const [namespace, key] = parentKey.split(this.separator);
+    return [namespace, key];
   }
 
   /**
@@ -58,38 +85,38 @@ export class CacheService {
    * @param ns Key namespace
    * @param key key name
    * @param value value to store
-   * @param ...args extra arguments to redis
-   *
+   * @param options
+   * @param options.ex key expiration in ms
+   * @param options.link link key list
    */
-  set(ns: string, key: any, value: any, ...args: string[]) {
-    key = this.sanitizeKey(key);
+  async set(ns: string, key: any, value: any, options: setOptions = {}) {
+    const parentKey = this.key(ns, key);
 
     value =
       ns in this.schemas
         ? this.schemas[ns].encode(this.sanitizeValue(ns, value))
         : JSON.stringify(value);
 
-    if (args.length > 0) {
-      args = args.map((arg) => arg.toString());
-    } else {
-      args = ["PX", this.defaultLifetime.toString()];
+    const ex = options.ex ? String(options.ex) : this.defaultLifetime;
+
+    if (options.link) {
+      await this.redis
+        .multi([
+          ["set", parentKey, value, "PX", ex],
+          ...options.link.map((childKey) => [
+            "set",
+            this.key(ns, childKey),
+            `${this.linkPrefix}${parentKey}`,
+          ]),
+        ])
+        .exec();
+
+      return "OK";
     }
-    return this.redis.set(`${ns}:${key}`, value, ...args);
-  }
 
-  /**
-   * Delete cached value
-   * @param ns Key namespace
-   * @param key Key name
-   */
-  del(ns: string, key: any) {
-    key = this.sanitizeKey(key);
+    await this.redis.set(parentKey, value, "PX", ex);
 
-    return this.redis.del(`${ns}:${key}`);
-  }
-
-  sanitizeKey(key: any) {
-    return typeof key === "string" ? key : JSON.stringify(key);
+    return "OK";
   }
 
   sanitizeValue(ns: string, value: any) {
@@ -100,5 +127,16 @@ export class CacheService {
     }
 
     return sanitized;
+  }
+
+  /**
+   * Delete cached value
+   * @param ns Key namespace
+   * @param key Key name
+   */
+  del(ns: string, key: any) {
+    const finalKey = this.key(ns, key);
+
+    return this.redis.del(finalKey);
   }
 }

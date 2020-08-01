@@ -33,12 +33,6 @@ describe("Service: Cache", () => {
       bar: "uint8",
     });
 
-  it("key sanitization", () => {
-    const obj = { email: "foo@bar" };
-
-    expect(service.sanitizeKey(obj)).toBe(JSON.stringify(obj));
-  });
-
   it("value sanitization by defined schema", () => {
     createSchema("test2");
 
@@ -117,8 +111,8 @@ describe("Service: Cache", () => {
     await work("json");
   });
 
-  it("extra arguments to redis", async (done) => {
-    await service.set("bar", "foo", 0, "PX", "1");
+  it("change default expiration time", async (done) => {
+    await service.set("bar", "foo", 0, { ex: 1 });
 
     setTimeout(async () => {
       const value = await service.get("bar", "foo");
@@ -126,5 +120,13 @@ describe("Service: Cache", () => {
 
       done();
     }, 2);
+  });
+
+  it("should make keys linkings", async () => {
+    await service.set("foo", "foobar", "linking", { link: ["raboof"] });
+
+    const linked = await service.get("foo", "raboof");
+
+    expect(linked).toBe("linking");
   });
 });
