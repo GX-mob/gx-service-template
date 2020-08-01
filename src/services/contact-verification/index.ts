@@ -56,6 +56,12 @@ export class ContactVerificationService {
     return emailVerify ? "email" : "sms";
   }
 
+  /**
+   * Validate a code
+   * @param target
+   * @param code user sent code
+   * @return {Promise} Promise
+   */
   public async verify(target: string, code: string): Promise<boolean> {
     this.checkChannel(target);
 
@@ -63,6 +69,7 @@ export class ContactVerificationService {
       to: target,
       code,
     });
+
     return status === "approved";
   }
 }
