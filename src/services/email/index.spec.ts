@@ -31,7 +31,7 @@ describe("Service: Email", () => {
         html: "# hi\n ### how are tests?",
       })
     ).resolves.toBeTruthy();
-  });
+  }, 10000);
 
   it("render", () => {
     const rendered = render("Foo", "## bar\n * asd");
