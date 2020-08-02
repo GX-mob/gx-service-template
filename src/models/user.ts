@@ -1,4 +1,4 @@
-import { Document, Schema, Model, Types, model } from "mongoose";
+import { Document, Schema, Types, model } from "mongoose";
 import {
   isValidCPF,
   isValidEmail,
@@ -111,7 +111,4 @@ UserSchema.pre<UserDocument>("updateOne", async function () {
   this.set({ updatedAt: new Date() });
 });
 
-export const UserModel: Model<UserDocument> = model<UserDocument>(
-  "User",
-  UserSchema
-);
+export const UserModel = model<UserDocument>("User", UserSchema);

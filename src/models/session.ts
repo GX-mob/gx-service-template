@@ -1,4 +1,4 @@
-import { Document, Schema, Model, Types, model } from "mongoose";
+import { Document, Schema, Types, model } from "mongoose";
 import { UserDocument } from "./user";
 
 export interface Session {
@@ -32,7 +32,4 @@ SessionSchema.pre<SessionDocument>("save", async function () {
   this.active = true;
 });
 
-export const SessionModel: Model<SessionDocument> = model<SessionDocument>(
-  "Session",
-  SessionSchema
-);
+export const SessionModel = model<SessionDocument>("Session", SessionSchema);

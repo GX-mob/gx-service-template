@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Model, model } from "mongoose";
+import mongoose, { Document, Schema, model } from "mongoose";
 import { User } from "./user";
 
 function hasProp(obj: any, prop: string) {
@@ -106,7 +106,4 @@ export const RideSchema: Schema = new Schema(
   { collection: "rides" }
 );
 
-export const RideModel: Model<RideDocument> = model<RideDocument>(
-  "Ride",
-  RideSchema
-);
+export const RideModel = model<RideDocument>("Ride", RideSchema);
