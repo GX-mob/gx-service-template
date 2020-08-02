@@ -33,13 +33,13 @@ export class SessionService {
     user_id: Types.ObjectId | string,
     session_data: SessionInfo
   ): Promise<Session> {
-    const { _id, access } = await this.data.users.get({
+    const { _id, groups } = await this.data.users.get({
       _id: user_id,
     });
 
     return this.data.sessions.create({
       uid: _id,
-      gid: access,
+      gids: groups,
       userAgent: session_data.ua,
       lastIp: session_data.ip,
     });
