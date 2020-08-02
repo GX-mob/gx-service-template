@@ -23,7 +23,7 @@ describe("Service: Email", () => {
   });
 
   it("send email", async () => {
-    expect(
+    await expect(
       service.send({
         subject: "test",
         to: "test@example.com",
