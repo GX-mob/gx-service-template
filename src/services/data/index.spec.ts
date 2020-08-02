@@ -1,7 +1,7 @@
 /**
  * Data Service
  *
- * @group unit/service
+ * @group unit/services/data
  */
 import { configureServiceTest } from "fastify-decorators/testing";
 import mongoose from "mongoose";
@@ -18,7 +18,7 @@ const mockUser = {
   primaryPhone: "82988888888",
   primaryEmail: "valid@email.com",
   birth: new Date("06/13/1994"),
-  access: 1,
+  groups: [1],
   credential: "asd",
 };
 

@@ -1,7 +1,7 @@
 /**
  * Storage Service
  *
- * @group unit/service
+ * @group unit/services/storage
  */
 import { configureServiceTest } from "fastify-decorators/testing";
 import { StorageService, AbstractionBucket } from ".";

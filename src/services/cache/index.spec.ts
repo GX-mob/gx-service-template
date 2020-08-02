@@ -1,7 +1,7 @@
 /**
  * Cache Service
  *
- * @group unit/service
+ * @group unit/services/cache
  */
 import { FastifyInstanceToken } from "fastify-decorators";
 import { configureServiceTest } from "fastify-decorators/testing";

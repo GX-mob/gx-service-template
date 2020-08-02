@@ -26,6 +26,7 @@ export class Handler<Model> implements IDataModel<Model> {
     public model: mongoose.Model<any>
   ) {}
 
+  // TODO configuration option for automatic link cache keys
   /**
    * Get a record from the cache, if it doesn't exist, get from persistent and update the cache
    * @param query

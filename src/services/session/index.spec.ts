@@ -1,7 +1,7 @@
 /**
  * Session Service
  *
- * @group unit/services
+ * @group unit/services/session
  */
 import { configureServiceTest } from "fastify-decorators/testing";
 import { SessionService } from ".";

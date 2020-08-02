@@ -1,7 +1,7 @@
 /**
  * Email
  *
- * @group unit/service
+ * @group unit/services/email
  */
 import { EmailService } from ".";
 import Mail from "nodemailer/lib/mailer";

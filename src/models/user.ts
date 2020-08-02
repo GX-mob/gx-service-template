@@ -22,7 +22,7 @@ export interface User {
   createdAt?: Date;
   updatedAt?: Date | null;
   birth: Date;
-  access?: number;
+  groups?: number[];
   credential: string;
   ["2fa"]?: string;
 }
@@ -95,7 +95,7 @@ export const UserSchema: Schema = new Schema(
     createdAt: { type: Date },
     updatedAt: { type: Date },
     birth: { type: Date, required: true },
-    access: { type: Number },
+    groups: { type: Array, of: Number },
     credential: { type: String, required: true },
     ["2fa"]: { type: String },
   },
@@ -104,7 +104,7 @@ export const UserSchema: Schema = new Schema(
 
 UserSchema.pre<UserDocument>("save", async function () {
   this.createdAt = new Date();
-  this.access = 1;
+  this.groups = [1];
 });
 
 UserSchema.pre<UserDocument>("updateOne", async function () {

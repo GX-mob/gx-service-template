@@ -1,7 +1,7 @@
 /**
  * Contact Verification Service
  *
- * @group unit/service
+ * @group unit/services/contact-verification
  */
 import { configureServiceTest } from "fastify-decorators/testing";
 import { ContactVerificationService, TwilioService } from ".";

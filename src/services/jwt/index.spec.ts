@@ -1,7 +1,7 @@
 /**
  * JWT Service
  *
- * @group unit/services
+ * @group unit/services/jwt
  */
 import { configureServiceTest } from "fastify-decorators/testing";
 import { JWTService } from ".";
@@ -16,7 +16,7 @@ let current: string;
   },
 });
 
-describe("JWT", () => {
+describe("Service: JWT", () => {
   let service: JWTService;
   const processDotEnv = { ...process.env };
 

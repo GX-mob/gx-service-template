@@ -1,3 +1,8 @@
+/**
+ * Status Controller
+ *
+ * @group unit/controllers
+ */
 import { FastifyInstance } from "fastify";
 import { configureControllerTest } from "fastify-decorators/testing";
 import StatusController from "./status.controller";
