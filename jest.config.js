@@ -3,7 +3,7 @@ module.exports = {
   rootDir: "./",
   testMatch: ["**/*.(test|spec).(ts|tsx|js|jsx)"],
   modulePathIgnorePatterns: ["modules"],
-  setupFiles: ["dotenv/config"],
+  setupFiles: ["./jest.setup.js"],
   verbose: false,
   clearMocks: true,
   runner: "groups",
