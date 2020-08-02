@@ -4,7 +4,7 @@ import { UserDocument } from "./user";
 export interface Session {
   _id: Types.ObjectId | any;
   uid: UserDocument["_id"];
-  access: number;
+  groups: number[];
   userAgent: string;
   lastIp: string;
   createdAt?: Date;
@@ -16,7 +16,7 @@ export interface SessionDocument extends Session, Document {}
 export const SessionSchema: Schema = new Schema(
   {
     uid: { type: Schema.Types.ObjectId, required: true, ref: "User" },
-    access: { type: Number, required: true },
+    groups: { type: Array, of: Number, required: true },
     userAgent: { type: String, required: true },
     lastIp: { type: String, required: true },
     createdAt: { type: Date },

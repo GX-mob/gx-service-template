@@ -39,7 +39,7 @@ export class SessionService {
 
     return this.data.sessions.create({
       uid: _id,
-      gids: groups,
+      groups,
       userAgent: session_data.ua,
       lastIp: session_data.ip,
     });

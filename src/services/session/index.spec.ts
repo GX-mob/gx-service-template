@@ -36,7 +36,7 @@ describe("Service: Session", () => {
     const ua = "test";
     const ip = "127.0.0.1";
 
-    dataService.users.get.mockResolvedValue({ _id: userId, access: 1 });
+    dataService.users.get.mockResolvedValue({ _id: userId, groups: [1] });
     dataService.sessions.create.mockResolvedValue({
       userAgent: ua,
       lastIp: ip,
