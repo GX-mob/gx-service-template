@@ -112,7 +112,10 @@ export class StorageService {
 
     if (this.compressibleMIME.includes(mime) && compress) {
       const compressor = this.createCompressor(mime as CompressibleMIME);
-      saveReadable.pipe(compressor).pipe(storageWritableStream);
+      const compressing = saveReadable.pipe(compressor);
+
+      saveReadable.on("error", (err) => compressing.destroy(err));
+      compressing.pipe(storageWritableStream);
     } else {
       saveReadable.pipe(storageWritableStream);
     }
