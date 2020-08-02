@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "GX http service template",
   "main": "dist/bin/index.js",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/GX-mob/http-service-template.git"
