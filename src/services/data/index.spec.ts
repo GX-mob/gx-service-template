@@ -43,7 +43,10 @@ describe("Service: Data", () => {
       ],
     });
 
-    users = handler.create<User>("users", UserModel);
+    users = handler.create<User>(UserModel, {
+      namespace: "users",
+      linkingKeys: ["primaryPhone", "primaryEmail"],
+    });
 
     mongoServer = new MongoMemoryServer();
     const URI = await mongoServer.getUri();
@@ -94,6 +97,14 @@ describe("Service: Data", () => {
     const fromCache = await handler.cache.get("users", { _id: nonCached._id });
 
     expect(user.firstName === fromCache.firstName);
+  });
+
+  it("get by a linking key", async () => {
+    const user = await users.get({ primaryEmail: mockUser.primaryEmail });
+
+    expect(user instanceof UserModel).toBeTruthy();
+    expect(user.primaryPhone).toBe(mockUser.primaryPhone);
+    expect(user.cpf).toBe(mockUser.cpf);
   });
 
   it("should update in both storages", async () => {

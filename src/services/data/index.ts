@@ -6,25 +6,26 @@ import mongoose from "mongoose";
 import { User, UserModel } from "../../models/user";
 import { Session, SessionModel } from "../../models/session";
 
-export interface IDataModel<Model> {
+interface CacheSettings<Model> {
   namespace: string;
-  cache: CacheService;
-  get(key: any): Promise<Model>;
-  update(key: any, data: any): Promise<void>;
-  create(data: any, key?: (queryResult: Model) => any): Promise<Model>;
-
-  setCache(key: string, data: any): Promise<void>;
+  linkingKeys?: Array<keyof Model>;
 }
 
 /**
  * Abstraction to manipulate the cached and persistent data of a single record, respectively.
  */
-export class Handler<Model> implements IDataModel<Model> {
+export class Handler<Model> {
+  private namespace: string;
+  private linkingKeys: Array<keyof Model>;
+
   constructor(
     public cache: CacheService,
-    public namespace: string,
-    public model: mongoose.Model<any>
-  ) {}
+    public model: mongoose.Model<any>,
+    cacheConfiguration: CacheSettings<Model>
+  ) {
+    this.namespace = cacheConfiguration.namespace;
+    this.linkingKeys = cacheConfiguration.linkingKeys;
+  }
 
   // TODO configuration option for automatic link cache keys
   /**
@@ -33,7 +34,7 @@ export class Handler<Model> implements IDataModel<Model> {
    * @returns
    * @constructs {Model}
    */
-  async get(query: any): Promise<Model | null> {
+  async get(query: Partial<Model>): Promise<Model | null> {
     const fromCache = await this.cache.get(this.namespace, query);
 
     if (fromCache) return new this.model(fromCache);
@@ -52,7 +53,7 @@ export class Handler<Model> implements IDataModel<Model> {
    * @param query
    * @param data
    */
-  async update(query: any, data: any) {
+  async update(query: any, data: Partial<Model>) {
     await this.model.updateOne(query, data);
     await this.setCache(query, data);
   }
@@ -65,12 +66,12 @@ export class Handler<Model> implements IDataModel<Model> {
    * @constructs {RecordHandler}
    */
   async create(
-    data: any,
+    data: Omit<Model, "_id">,
     keySchema: (queryResult: Model) => any = ({ _id }: any) => ({
       _id,
     })
   ): Promise<Model> {
-    const mongooseResult = await this.model.create(data);
+    const mongooseResult = await this.model.create(data as Model);
 
     const key = keySchema(mongooseResult);
 
@@ -81,10 +82,17 @@ export class Handler<Model> implements IDataModel<Model> {
   }
 
   async setCache(key: any, data: any): Promise<void> {
-    await this.cache.set(this.namespace, key, {
-      ...((await this.cache.get(this.namespace, key)) || {}),
-      ...data,
-    });
+    const saved = await this.cache.get(this.namespace, key);
+
+    await this.cache.set(
+      this.namespace,
+      key,
+      {
+        ...(saved || {}),
+        ...data,
+      },
+      { link: this.mountLinkingKeys(data) }
+    );
   }
 
   /**
@@ -97,6 +105,10 @@ export class Handler<Model> implements IDataModel<Model> {
     await this.model.deleteOne(query);
     await this.cache.del(this.namespace, query);
   }
+
+  mountLinkingKeys(data) {
+    return this.linkingKeys.map((key) => JSON.stringify({ [key]: data[key] }));
+  }
 }
 
 @Service()
@@ -104,19 +116,26 @@ export class DataService {
   @Inject(CacheService)
   public cache!: CacheService;
 
-  public users = this.create<User>("users", UserModel);
-  public sessions = this.create<Session>("users", SessionModel);
+  public users = this.create<User>(UserModel, {
+    namespace: "users",
+    linkingKeys: ["primaryEmail", "primaryPhone", "cpf"],
+  });
+  public sessions = this.create<Session>(SessionModel, {
+    namespace: "users",
+  });
   /**
    *
-   * @param cacheNamespace
    * @param model
+   * @param cacheSettings
+   * @param cacheSettings.namespace Cache namespace
+   * @param cacheSettings.linkingKeys Cache linking keys
    * @returns
    * @constructs {Handler}
    */
   create<Model>(
-    cacheNamespace: string,
-    model: mongoose.Model<any>
+    model: mongoose.Model<any>,
+    cacheSettings: CacheSettings<Model>
   ): Handler<Model> {
-    return new Handler<Model>(this.cache, cacheNamespace, model);
+    return new Handler<Model>(this.cache, model, cacheSettings);
   }
 }
