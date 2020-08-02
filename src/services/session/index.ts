@@ -1,7 +1,5 @@
 import { Service, Inject } from "fastify-decorators";
 import { Types } from "mongoose";
-import { Session } from "../../models/session";
-
 import { DataService } from "../data";
 
 /**
@@ -29,10 +27,7 @@ export class SessionService {
    * @return
    * @constructs SessionModel
    */
-  async create(
-    user_id: Types.ObjectId | string,
-    session_data: SessionInfo
-  ): Promise<Session> {
+  async create(user_id: Types.ObjectId | string, session_data: SessionInfo) {
     const { _id, groups } = await this.data.users.get({
       _id: user_id,
     });
@@ -45,7 +40,7 @@ export class SessionService {
     });
   }
 
-  async get(_id: any): Promise<Session | null> {
+  async get(_id: any) {
     return this.data.sessions.get({ _id });
   }
 
