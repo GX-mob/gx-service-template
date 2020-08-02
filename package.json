@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node ./dist/bin/index.js",
     "test": "NODE_ENV=test jest --verbose --runInBand",
-    "test:ci": "NODE_ENV=test jest --runInBand --forceExit --coverage",
+    "test:ci": "NODE_ENV=test jest --coverage --runInBand",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "build": "rimraf dist && tsc --sourceMap -p ./ && copyfiles -u 1 \"src/**/*.css\" ./dist",
     "dev": "NODE_ENV=development nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node' --files ./src/bin/index.ts",
