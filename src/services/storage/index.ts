@@ -90,13 +90,11 @@ export class StorageService {
     }
 
     const [saveReadable, mimeDetectReadable] = this.cloneReadable(readable);
-
     const mime = await this.getMIME(mimeDetectReadable);
 
     this.checkValidMime(mime, acceptMIME);
 
     const bucketFile = bucket.file(filename);
-
     const storageWritableStream = bucketFile.createWriteStream({
       metadata: {
         contentType: mime,
@@ -140,6 +138,11 @@ export class StorageService {
   cloneReadable(readable): Readable[] {
     const clone1 = new PassThrough();
     const clone2 = new PassThrough();
+
+    readable.on("error", (err: Error) => {
+      clone1.destroy(err);
+      clone2.destroy(err);
+    });
 
     readable.pipe(clone1);
     readable.pipe(clone2);
