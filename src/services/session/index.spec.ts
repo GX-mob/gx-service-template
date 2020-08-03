@@ -4,7 +4,6 @@
  * @group unit/services/session
  */
 import { configureServiceTest } from "fastify-decorators/testing";
-import IORedis from "ioredis-mock";
 import { SessionService } from ".";
 import { DataService } from "../data";
 import { CacheService } from "../cache";
