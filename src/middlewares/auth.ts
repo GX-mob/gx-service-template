@@ -40,6 +40,6 @@ export class AuthMiddleware {
   private _checkPermission(userGroups: number[]) {
     const groups = this.authSettings.groups;
 
-    return !!groups.filter((id) => userGroups.includes(id));
+    return !!groups.filter((id) => userGroups.includes(id)).length;
   }
 }
