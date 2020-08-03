@@ -51,9 +51,15 @@ export class SessionService {
     user_id: Types.ObjectId | string,
     session_data: SessionInfo
   ): Promise<{ token: string; session: Session }> {
-    const { _id, groups } = await this.data.users.get({
+    const user = await this.data.users.get({
       _id: user_id,
     });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const { _id, groups } = user;
 
     const session = await this.data.sessions.create({
       uid: _id,

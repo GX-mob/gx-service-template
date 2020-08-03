@@ -158,4 +158,15 @@ describe("Service: Session", () => {
 
     await expect(service.verify(token)).rejects.toThrow("Session deactivated");
   });
+
+  it("should not create a session due to not found the user", async () => {
+    dataService.users.get.mockResolvedValue(null);
+
+    await expect(
+      service.create(userId, {
+        ua,
+        ip,
+      })
+    ).rejects.toThrow("User not found");
+  });
 });
