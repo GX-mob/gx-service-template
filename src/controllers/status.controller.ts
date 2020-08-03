@@ -1,4 +1,5 @@
 import { Controller, GET, HEAD } from "fastify-decorators";
+import { ExampleMiddleware } from "../middlewares/example";
 
 const schema = {
   response: {
@@ -13,7 +14,7 @@ const schema = {
 type Response = { service_id: string; date: Date; works: boolean };
 
 @Controller("/status")
-export default class StatusController {
+export default class StatusController extends ExampleMiddleware {
   @HEAD({
     url: "/",
     options: {
