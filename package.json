@@ -9,7 +9,7 @@
     "url": "https://github.com/GX-mob/http-service-template.git"
   },
   "scripts": {
-    "start": "NODE_ENV=production node ./dist/bin/index.js",
+    "start": "node ./bin/index.js",
     "test": "NODE_ENV=test jest --runInBand",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "build": "rimraf dist && tsc --sourceMap -p ./ && copyfiles -u 1 \"src/**/*.css\" ./dist",
@@ -24,6 +24,7 @@
     "fastify": "^3.1.1",
     "fastify-circuit-breaker": "^1.0.1",
     "fastify-decorators": "^3.1.1",
+    "fastify-graceful-shutdown": "^3.0.0",
     "fastify-multipart": "^2.0.3",
     "fastify-plugin": "^2.0.3",
     "fastify-rate-limit": "^4.0.2",

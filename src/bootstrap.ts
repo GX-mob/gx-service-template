@@ -8,6 +8,7 @@ import fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
 import fastifyMultipart from "fastify-multipart";
 import fastifyRateLimit from "fastify-rate-limit";
 import fastifyCircuitBreak from "fastify-circuit-breaker";
+import fastifyGracefulShutdown from "fastify-graceful-shutdown";
 import fastifyRedis from "fastify-redis";
 import { bootstrap } from "fastify-decorators";
 import pino from "pino";
@@ -29,6 +30,10 @@ export default function instanceBootstrap(
     dest
   );
 
+  setInterval(function () {
+    logger.flush();
+  }, 10000).unref();
+
   const instance: FastifyInstance = fastify({ ...opts, logger });
 
   const redisConfig =
@@ -40,6 +45,8 @@ export default function instanceBootstrap(
   instance.register(fastifyMultipart);
   instance.register(fastifyCircuitBreak);
   instance.register(fastifyRedis, redisConfig);
+  instance.register(fastifyGracefulShutdown);
+
   instance.register(fastifyRateLimit, {
     max: 100,
     timeWindow: 1000 * 60,
