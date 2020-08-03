@@ -1,12 +1,16 @@
 import { Controller, GET, HEAD } from "fastify-decorators";
-import { ExampleMiddleware } from "../middlewares/example";
 
-const schema = {
-  response: {
-    "200": {
-      service_id: { type: "string" },
-      date: { type: "string" },
-      works: { type: "boolean" },
+const options = {
+  url: "/",
+  options: {
+    schema: {
+      response: {
+        "200": {
+          service_id: { type: "string" },
+          date: { type: "string" },
+          works: { type: "boolean" },
+        },
+      },
     },
   },
 };
@@ -14,19 +18,9 @@ const schema = {
 type Response = { service_id: string; date: Date; works: boolean };
 
 @Controller("/status")
-export default class StatusController extends ExampleMiddleware {
-  @HEAD({
-    url: "/",
-    options: {
-      schema,
-    },
-  })
-  @GET({
-    url: "/",
-    options: {
-      schema,
-    },
-  })
+export default class StatusController {
+  @HEAD(options)
+  @GET(options)
   async handler(): Promise<Response> {
     return this.getStatus();
   }
