@@ -3,18 +3,33 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 import { join } from "path";
+import "reflect-metadata";
 import fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
 import fastifyMultipart from "fastify-multipart";
 import fastifyRateLimit from "fastify-rate-limit";
 import fastifyCircuitBreak from "fastify-circuit-breaker";
 import fastifyRedis from "fastify-redis";
 import { bootstrap } from "fastify-decorators";
-import "reflect-metadata";
+import pino from "pino";
 
 export default function instanceBootstrap(
-  opts: FastifyServerOptions = { logger: true }
+  opts: FastifyServerOptions
 ): FastifyInstance {
-  const instance: FastifyInstance = fastify(opts);
+  const dest = pino.destination({ sync: false });
+
+  const logger = pino(
+    process.env.NODE_ENV !== "production"
+      ? {
+          prettyPrint: {
+            levelFirst: true,
+          },
+          prettifier: require("pino-pretty"),
+        }
+      : {},
+    dest
+  );
+
+  const instance: FastifyInstance = fastify({ ...opts, logger });
 
   const redisConfig =
     process.env.NODE_ENV === "production"
@@ -24,7 +39,6 @@ export default function instanceBootstrap(
   // Third-party plugins
   instance.register(fastifyMultipart);
   instance.register(fastifyCircuitBreak);
-
   instance.register(fastifyRedis, redisConfig);
   instance.register(fastifyRateLimit, {
     max: 100,

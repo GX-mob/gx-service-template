@@ -9,7 +9,7 @@
     "url": "https://github.com/GX-mob/http-service-template.git"
   },
   "scripts": {
-    "start": "node ./dist/bin/index.js",
+    "start": "NODE_ENV=production node ./dist/bin/index.js",
     "test": "NODE_ENV=test jest --runInBand",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "build": "rimraf dist && tsc --sourceMap -p ./ && copyfiles -u 1 \"src/**/*.css\" ./dist",
@@ -36,6 +36,7 @@
     "marked": "^1.1.1",
     "mongoose": "^5.9.27",
     "nodemailer": "^6.4.10",
+    "pino": "^6.5.0",
     "pngquant": "^3.1.0",
     "reflect-metadata": "^0.1.13",
     "schemapack": "^1.4.2",
@@ -67,6 +68,7 @@
     "json-schema-to-typescript": "^9.1.1",
     "lint-staged": "^10.2.11",
     "nodemon": "^2.0.4",
+    "pino-pretty": "^4.1.0",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "stream-buffers": "^3.0.2",
