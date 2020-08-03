@@ -3,10 +3,6 @@ import { Hook, Inject, FastifyInstanceToken } from "fastify-decorators";
 import httpError from "http-errors";
 import { SessionService } from "../services";
 
-interface IHeaders {
-  Authorization: string;
-}
-
 type AuthSettings = {
   groups: number[];
 };
@@ -23,16 +19,13 @@ export class AuthMiddleware {
   };
 
   @Hook("preHandler")
-  private async __preHandler(
-    request: FastifyRequest<{ Headers: IHeaders }>,
-    reply: FastifyReply
-  ) {
+  private async __preHandler(request: FastifyRequest, reply: FastifyReply) {
     try {
-      if (!request.headers.Authorization) {
+      if (!request.headers.authorization) {
         return reply.send(new httpError.Unauthorized());
       }
 
-      const token = request.headers.Authorization.replace("Bearer ", "");
+      const token = request.headers.authorization.replace("Bearer ", "");
       const session = await this._session.verify(token);
 
       if (!this._checkPermission(session.groups)) {
