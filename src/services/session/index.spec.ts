@@ -3,6 +3,7 @@
  *
  * @group unit/services/session
  */
+import { Types } from "mongoose";
 import { configureServiceTest } from "fastify-decorators/testing";
 import { SessionService } from ".";
 import { DataService } from "../data";
@@ -122,23 +123,36 @@ describe("Service: Session", () => {
       ip,
     });
 
-    dataService.sessions.get.mockResolvedValue({ active: true });
+    const groups = [1];
 
-    const tokenDecoded = await service.verify(token);
-
-    expect(tokenDecoded).toMatchObject({
-      sid,
+    dataService.sessions.get.mockResolvedValue({
+      _id: Types.ObjectId("507f191e810c19729de860ea"),
       uid: userId,
+      groups,
+      userAgent: ua,
+      lastIp: ip,
+      active: true,
     });
 
-    cacheService.get.mockResolvedValue(tokenDecoded);
+    const sessionData = await service.verify(token);
+
+    expect(sessionData._id instanceof Types.ObjectId).toBeTruthy();
+    expect(sessionData.uid).toBe(userId);
+    expect(Array.isArray(sessionData.groups)).toBeTruthy();
+    expect(sessionData.userAgent).toBe(ua);
+    expect(sessionData.lastIp).toBe(ip);
+    expect(sessionData.active).toBeTruthy();
+
+    cacheService.get.mockResolvedValue(sessionData);
 
     const fromCache = await service.verify(token);
 
-    expect(fromCache).toMatchObject({
-      sid,
-      uid: userId,
-    });
+    expect(fromCache._id instanceof Types.ObjectId).toBeTruthy();
+    expect(fromCache.uid).toBe(userId);
+    expect(Array.isArray(fromCache.groups)).toBeTruthy();
+    expect(fromCache.userAgent).toBe(ua);
+    expect(fromCache.lastIp).toBe(ip);
+    expect(fromCache.active).toBeTruthy();
   });
 
   it("should throw an error due to deactivated or non existent session", async () => {

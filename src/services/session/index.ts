@@ -87,6 +87,43 @@ export class SessionService {
     });
   }
 
+  /**
+   * Verify a token
+   * @param token
+   * @returns session data
+   */
+  async verify(token: string) {
+    const tokenBody = await this.verifyToken(token);
+
+    return this.checkState(tokenBody.sid);
+  }
+
+  private async verifyToken(token: string): Promise<any> {
+    const cache = await this.cache.get(this.tokenNamespace, token);
+
+    if (cache) {
+      return cache;
+    }
+
+    const tokenBody = await verify(token, this.publicKey, {
+      algorithms: ["ES256"],
+    });
+
+    this.cache.set(this.tokenNamespace, token, tokenBody);
+
+    return tokenBody;
+  }
+
+  private async checkState(session_id: Types.ObjectId | string) {
+    const sessionData = await this.get(session_id);
+
+    if (!sessionData || !sessionData.active) {
+      throw new Error("Session deactivated");
+    }
+
+    return sessionData;
+  }
+
   async get(_id: any) {
     return this.data.sessions.get({ _id });
   }
@@ -97,35 +134,5 @@ export class SessionService {
 
   async delete(session_id: Types.ObjectId | string) {
     await this.data.sessions.remove({ _id: session_id });
-  }
-
-  /**
-   * Verify a token
-   * @param token
-   * @returns session data
-   */
-  async verify(token: string): Promise<any> {
-    const cache = await this.cache.get(this.tokenNamespace, token);
-
-    if (cache) {
-      await this.checkState(cache.sid);
-      return cache;
-    }
-
-    const data = await verify(token, this.publicKey, { algorithms: ["ES256"] });
-
-    await this.checkState(data.sid);
-
-    this.cache.set(this.tokenNamespace, token, data);
-
-    return data;
-  }
-
-  private async checkState(session_id: Types.ObjectId | string) {
-    const sessionData = await this.get(session_id);
-
-    if (!sessionData || !sessionData.active) {
-      throw new Error("Session deactivated");
-    }
   }
 }
