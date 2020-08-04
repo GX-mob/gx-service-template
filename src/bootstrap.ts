@@ -90,7 +90,8 @@ export default function instanceBootstrap(
   // Augmentations
   instance.decorateRequest("getRealIp", "");
   instance.addHook("onRequest", (request) => {
-    request.getRealIp = () => getClientIp(request.raw);
+    let ip: string;
+    request.getRealIp = () => ip || (ip = getClientIp(request.raw));
   });
 
   return instance;
