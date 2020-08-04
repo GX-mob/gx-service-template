@@ -4,8 +4,8 @@ if (!isProduction) {
   require("dotenv").config(); // eslint-disable-line @typescript-eslint/no-var-requires
 }
 
-import { join } from "path";
 import "reflect-metadata";
+import { join } from "path";
 import Mongoose from "mongoose";
 import fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
 import fastifyMultipart from "fastify-multipart";
