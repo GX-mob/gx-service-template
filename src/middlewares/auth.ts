@@ -2,11 +2,17 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { Hook, Inject, FastifyInstanceToken } from "fastify-decorators";
 import httpError from "http-errors";
 import { SessionService } from "../services";
-import requestIp from "request-ip";
+import { getClientIp } from "request-ip";
 
 type AuthSettings = {
   groups: number[];
 };
+
+declare module "fastify" {
+  export interface FastifyRequest {
+    realIp: string;
+  }
+}
 
 export class AuthMiddleware {
   @Inject(FastifyInstanceToken)
@@ -22,7 +28,7 @@ export class AuthMiddleware {
   @Hook("preHandler")
   private async __preHandler(request: FastifyRequest, reply: FastifyReply) {
     try {
-      request.ip = requestIp(request.raw);
+      request.realIp = getClientIp(request.raw);
 
       if (!request.headers.authorization) {
         return reply.send(new httpError.Unauthorized());
@@ -43,6 +49,6 @@ export class AuthMiddleware {
   private _checkPermission(userGroups: number[]) {
     const groups = this.authSettings.groups;
 
-    return !!groups.filter((id) => userGroups.includes(id)).length;
+    return !!groups.find((id) => userGroups.includes(id));
   }
 }
