@@ -37,7 +37,7 @@ describe("Service: Session", () => {
       create: jest.fn().mockResolvedValue({
         _id: sid,
         userAgent: ua,
-        lastIp: ip,
+        ips: [ip],
       }),
       get: jest.fn(),
       update: jest.fn(),
@@ -78,7 +78,7 @@ describe("Service: Session", () => {
     });
 
     expect(typeof token).toBe("string");
-    expect(session.userAgent === ua && session.lastIp === ip).toBeTruthy();
+    expect(session.userAgent === ua && session.ips[0] === ip).toBeTruthy();
   });
 
   it("should update a session", async () => {
@@ -130,7 +130,7 @@ describe("Service: Session", () => {
       uid: userId,
       groups,
       userAgent: ua,
-      lastIp: ip,
+      ips: [ip],
       active: true,
     });
 
@@ -140,7 +140,7 @@ describe("Service: Session", () => {
     expect(sessionData.uid).toBe(userId);
     expect(Array.isArray(sessionData.groups)).toBeTruthy();
     expect(sessionData.userAgent).toBe(ua);
-    expect(sessionData.lastIp).toBe(ip);
+    expect(sessionData.ips[0]).toBe(ip);
     expect(sessionData.active).toBeTruthy();
 
     cacheService.get.mockResolvedValue(sessionData);
@@ -151,7 +151,7 @@ describe("Service: Session", () => {
     expect(fromCache.uid).toBe(userId);
     expect(Array.isArray(fromCache.groups)).toBeTruthy();
     expect(fromCache.userAgent).toBe(ua);
-    expect(fromCache.lastIp).toBe(ip);
+    expect(fromCache.ips[0]).toBe(ip);
     expect(fromCache.active).toBeTruthy();
   });
 

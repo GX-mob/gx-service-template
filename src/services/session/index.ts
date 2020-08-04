@@ -65,7 +65,7 @@ export class SessionService {
       uid: _id,
       groups,
       userAgent: session_data.ua,
-      lastIp: session_data.ip,
+      ips: [session_data.ip],
     });
 
     const token = await this.signToken({ sid: session._id, uid: _id });
