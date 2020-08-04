@@ -6,7 +6,7 @@ export interface Session {
   uid: UserDocument["_id"];
   groups: number[];
   userAgent: string;
-  lastIp: string;
+  ips: string[];
   createdAt?: Date;
   active?: boolean;
 }
@@ -18,7 +18,7 @@ export const SessionSchema: Schema = new Schema(
     uid: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     groups: { type: Array, of: Number, required: true },
     userAgent: { type: String, required: true },
-    lastIp: { type: String, required: true },
+    ips: { type: Array, of: String, required: true },
     createdAt: { type: Date },
     active: { type: Boolean },
   },
