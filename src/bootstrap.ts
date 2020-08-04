@@ -13,34 +13,15 @@ import fastifyRateLimit from "fastify-rate-limit";
 import fastifyCircuitBreak from "fastify-circuit-breaker";
 import fastifyRedis from "fastify-redis";
 import { bootstrap } from "fastify-decorators";
-import pino from "pino";
+import logger from "./helpers/logger";
 import { getClientIp } from "request-ip";
 
 export default function instanceBootstrap(
   opts: FastifyServerOptions
 ): FastifyInstance {
-  const dest = pino.destination({ sync: false });
-
-  const logger = pino(
-    process.env.NODE_ENV !== "production"
-      ? {
-          prettyPrint: {
-            levelFirst: true,
-          },
-          prettifier: require("pino-pretty"),
-        }
-      : {},
-    dest
-  );
-
-  setInterval(function () {
-    logger.flush();
-  }, 10000).unref();
-
   const instance: FastifyInstance = fastify({ ...opts, logger });
 
   // Database connection
-
   instance.register(async () => {
     Mongoose.connection.on("connected", () => {
       instance.log.info({ actor: "MongoDB" }, "connected");
