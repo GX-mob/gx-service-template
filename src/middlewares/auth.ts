@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { Hook, Inject, FastifyInstanceToken } from "fastify-decorators";
 import httpError from "http-errors";
 import { SessionService } from "../services";
+import requestIp from "request-ip";
 
 type AuthSettings = {
   groups: number[];
@@ -21,6 +22,8 @@ export class AuthMiddleware {
   @Hook("preHandler")
   private async __preHandler(request: FastifyRequest, reply: FastifyReply) {
     try {
+      request.ip = requestIp(request.raw);
+
       if (!request.headers.authorization) {
         return reply.send(new httpError.Unauthorized());
       }
