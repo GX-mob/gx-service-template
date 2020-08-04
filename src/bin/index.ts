@@ -1,11 +1,14 @@
 import * as sourceMapSupport from "source-map-support";
 sourceMapSupport.install();
+import { FastifyInstance } from "fastify";
 
 import bootstrap from "../bootstrap";
 
+let instance: FastifyInstance;
+
 const start = async () => {
   try {
-    const instance = bootstrap({
+    instance = bootstrap({
       logger: true,
       trustProxy: true,
     });
@@ -25,10 +28,10 @@ const start = async () => {
 };
 
 process.on("uncaughtException", (error) => {
-  console.error(error);
+  instance.log.error(error);
 });
 process.on("unhandledRejection", (error) => {
-  console.error(error);
+  instance.log.error(error);
 });
 
 start();
