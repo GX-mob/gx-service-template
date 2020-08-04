@@ -25,7 +25,7 @@ describe("Service: Session", () => {
   let service: SessionService;
 
   const userId = "foo";
-  const sid = "foo";
+  const sid = Types.ObjectId();
   const ua = "test";
   const ip = "127.0.0.1";
 
@@ -85,8 +85,8 @@ describe("Service: Session", () => {
     dataService.sessions.update.mockResolvedValue(void 0);
     dataService.sessions.get.mockResolvedValue({ active: false });
 
-    await service.update("foo", { active: false });
-    const updated = await service.get("foo");
+    await service.update(sid, { active: false });
+    const updated = await service.get(sid);
 
     expect(updated.active).toBe(false);
   });
@@ -95,8 +95,8 @@ describe("Service: Session", () => {
     dataService.sessions.remove.mockResolvedValue(void 0);
     dataService.sessions.get.mockResolvedValue(null);
 
-    await service.delete("foo");
-    const check = await service.get("foo");
+    await service.delete(sid);
+    const check = await service.get(sid);
 
     expect(check).toBe(null);
   });
@@ -126,7 +126,7 @@ describe("Service: Session", () => {
     const groups = [1];
 
     dataService.sessions.get.mockResolvedValue({
-      _id: Types.ObjectId("507f191e810c19729de860ea"),
+      _id: sid,
       uid: userId,
       groups,
       userAgent: ua,
@@ -134,7 +134,7 @@ describe("Service: Session", () => {
       active: true,
     });
 
-    const sessionData = await service.verify(token);
+    const sessionData = await service.verify(token, ip);
 
     expect(sessionData._id instanceof Types.ObjectId).toBeTruthy();
     expect(sessionData.uid).toBe(userId);
@@ -145,7 +145,7 @@ describe("Service: Session", () => {
 
     cacheService.get.mockResolvedValue(sessionData);
 
-    const fromCache = await service.verify(token);
+    const fromCache = await service.verify(token, ip);
 
     expect(fromCache._id instanceof Types.ObjectId).toBeTruthy();
     expect(fromCache.uid).toBe(userId);
@@ -166,11 +166,15 @@ describe("Service: Session", () => {
 
     dataService.sessions.get.mockResolvedValue(null);
 
-    await expect(service.verify(token)).rejects.toThrow("Session deactivated");
+    await expect(service.verify(token, ip)).rejects.toThrow(
+      "Session deactivated"
+    );
 
     dataService.sessions.get.mockResolvedValue({ active: false });
 
-    await expect(service.verify(token)).rejects.toThrow("Session deactivated");
+    await expect(service.verify(token, ip)).rejects.toThrow(
+      "Session deactivated"
+    );
   });
 
   it("should not create a session due to not found the user", async () => {
@@ -182,5 +186,30 @@ describe("Service: Session", () => {
         ip,
       })
     ).rejects.toThrow("User not found");
+  });
+
+  it("should append ip to ip tracking field", async () => {
+    const session = {
+      _id: sid,
+      uid: userId,
+      userAgent: ua,
+      groups: [1],
+      ips: [ip],
+      active: true,
+    };
+    dataService.users.get.mockResolvedValue({ _id: userId, groups: [1] });
+    dataService.sessions.get.mockResolvedValue(session);
+    dataService.sessions.update.mockResolvedValue("OK");
+
+    const { token } = await service.create(userId, {
+      ua,
+      ip,
+    });
+
+    const newIp = "127.0.0.2";
+
+    const { ips } = await service.verify(token, newIp);
+
+    expect(ips.includes(newIp)).toBeTruthy();
   });
 });

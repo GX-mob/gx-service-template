@@ -124,12 +124,16 @@ export class SessionService {
       throw new Error("Session deactivated");
     }
 
-    if (!sessionData.ips.includes(ip)) {
-      const update = this.update(session_id, { ips: [...sessionData.ips, ip] });
+    const session = { ...sessionData };
+
+    if (!session.ips.includes(ip)) {
+      session.ips.push(ip);
+
+      const update = this.update(session_id, { ips: session.ips });
       handleRejectionByUnderHood(update);
     }
 
-    return sessionData;
+    return session;
   }
 
   async get(_id: Types.ObjectId) {
