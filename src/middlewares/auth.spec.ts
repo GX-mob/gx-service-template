@@ -4,7 +4,12 @@
  * @group unit/middlewares
  */
 import { FastifyInstance } from "fastify";
-import { FastifyInstanceToken, Controller, GET } from "fastify-decorators";
+import {
+  FastifyInstanceToken,
+  Controller,
+  GET,
+  Hook,
+} from "fastify-decorators";
 import { configureControllerTest } from "fastify-decorators/testing";
 import { SessionService } from "../services";
 import { AuthMiddleware } from "./auth";
@@ -35,6 +40,12 @@ class TestController extends AuthMiddleware {
   authSettings = {
     groups: [2],
   };
+
+  @Hook("onRequest")
+  onRequestHook(request, _reply, next) {
+    request.getRealIp = () => request.ip;
+    next();
+  }
 
   @GET("/")
   async handler() {

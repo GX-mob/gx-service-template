@@ -21,12 +21,11 @@ export class AuthMiddleware {
   @Hook("preHandler")
   private async __preHandler(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const ip = request.getRealIp();
-
       if (!request.headers.authorization) {
         return reply.send(new httpError.Unauthorized());
       }
 
+      const ip = request.getRealIp();
       const token = request.headers.authorization.replace("Bearer ", "");
       const session = await this._session.verify(token, ip);
 
