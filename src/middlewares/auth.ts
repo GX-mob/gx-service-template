@@ -2,7 +2,6 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { Hook, Inject, FastifyInstanceToken } from "fastify-decorators";
 import httpError from "http-errors";
 import { SessionService } from "../services";
-import { getClientIp } from "request-ip";
 
 type AuthSettings = {
   groups: number[];
@@ -29,7 +28,7 @@ export class AuthMiddleware {
       }
 
       const token = request.headers.authorization.replace("Bearer ", "");
-      const session = await this._session.verify(token);
+      const session = await this._session.verify(token, ip);
 
       if (!this._checkPermission(session.groups)) {
         return reply.send(new httpError.Forbidden());

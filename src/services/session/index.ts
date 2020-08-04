@@ -93,11 +93,11 @@ export class SessionService {
    * @param token
    * @returns session data
    */
-  async verify(token: string) {
+  async verify(token: string, ip: string) {
     const tokenBody = await this.verifyToken(token);
     const session_id = Types.ObjectId(tokenBody.sid);
 
-    return this.checkState(session_id);
+    return this.checkState(session_id, ip);
   }
 
   private async verifyToken(token: string): Promise<any> {
@@ -117,11 +117,16 @@ export class SessionService {
     return tokenBody;
   }
 
-  private async checkState(session_id: Types.ObjectId) {
+  private async checkState(session_id: Types.ObjectId, ip: string) {
     const sessionData = await this.get(session_id);
 
     if (!sessionData || !sessionData.active) {
       throw new Error("Session deactivated");
+    }
+
+    if (!sessionData.ips.includes(ip)) {
+      const update = this.update(session_id, { ips: [...sessionData.ips, ip] });
+      handleRejectionByUnderHood(update);
     }
 
     return sessionData;
