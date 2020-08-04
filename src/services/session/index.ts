@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { DataService } from "../data";
 import { CacheService } from "../cache";
 import { Session } from "../../models/session";
+import { handleRejectionByUnderHood } from "../../helpers/utils";
 
 const verify = promisify(jwt.verify);
 const sign = promisify(jwt.sign);
@@ -94,8 +95,9 @@ export class SessionService {
    */
   async verify(token: string) {
     const tokenBody = await this.verifyToken(token);
+    const session_id = Types.ObjectId(tokenBody.sid);
 
-    return this.checkState(tokenBody.sid);
+    return this.checkState(session_id);
   }
 
   private async verifyToken(token: string): Promise<any> {
@@ -109,12 +111,13 @@ export class SessionService {
       algorithms: ["ES256"],
     });
 
-    this.cache.set(this.tokenNamespace, token, tokenBody);
+    const setCache = this.cache.set(this.tokenNamespace, token, tokenBody);
+    handleRejectionByUnderHood(setCache);
 
     return tokenBody;
   }
 
-  private async checkState(session_id: Types.ObjectId | string) {
+  private async checkState(session_id: Types.ObjectId) {
     const sessionData = await this.get(session_id);
 
     if (!sessionData || !sessionData.active) {
@@ -124,15 +127,18 @@ export class SessionService {
     return sessionData;
   }
 
-  async get(_id: any) {
+  async get(_id: Types.ObjectId) {
     return this.data.sessions.get({ _id });
   }
 
-  async update(session_id: Types.ObjectId | string, data: any) {
+  async update(
+    session_id: Types.ObjectId,
+    data: Omit<Partial<Session>, "_id">
+  ) {
     await this.data.sessions.update({ _id: session_id }, data);
   }
 
-  async delete(session_id: Types.ObjectId | string) {
+  async delete(session_id: Types.ObjectId) {
     await this.data.sessions.remove({ _id: session_id });
   }
 }

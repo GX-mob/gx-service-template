@@ -1,6 +1,7 @@
 import { Service, Inject } from "fastify-decorators";
 import { CacheService } from "../cache";
 import mongoose from "mongoose";
+import { handleRejectionByUnderHood } from "../../helpers/utils";
 
 // Standard handlers
 import { User, UserModel } from "../../models/user";
@@ -34,15 +35,16 @@ export class Handler<Model> {
    * @constructs {Model}
    */
   async get(query: Partial<Model>): Promise<Model | null> {
-    const fromCache = await this.cache.get(this.namespace, query);
+    const cache = await this.cache.get(this.namespace, query);
 
-    if (fromCache) return new this.model(fromCache);
+    if (cache) return new this.model(cache);
 
-    const fromPersistent = await this.model.findOne(query);
-    if (fromPersistent) {
-      await this.cache.set(this.namespace, query, fromPersistent);
+    const persistent = await this.model.findOne(query);
+    if (persistent) {
+      const setCache = this.cache.set(this.namespace, query, persistent);
+      handleRejectionByUnderHood(setCache);
 
-      return fromPersistent;
+      return persistent;
     }
     return null;
   }
