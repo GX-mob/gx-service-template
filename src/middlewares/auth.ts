@@ -8,12 +8,6 @@ type AuthSettings = {
   groups: number[];
 };
 
-declare module "fastify" {
-  export interface FastifyRequest {
-    realIp: string;
-  }
-}
-
 export class AuthMiddleware {
   @Inject(FastifyInstanceToken)
   private _instance!: FastifyInstance;
@@ -28,7 +22,7 @@ export class AuthMiddleware {
   @Hook("preHandler")
   private async __preHandler(request: FastifyRequest, reply: FastifyReply) {
     try {
-      request.realIp = getClientIp(request.raw);
+      const ip = request.getRealIp();
 
       if (!request.headers.authorization) {
         return reply.send(new httpError.Unauthorized());

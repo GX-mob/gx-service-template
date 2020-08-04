@@ -14,6 +14,7 @@ import fastifyCircuitBreak from "fastify-circuit-breaker";
 import fastifyRedis from "fastify-redis";
 import { bootstrap } from "fastify-decorators";
 import pino from "pino";
+import { getClientIp } from "request-ip";
 
 export default function instanceBootstrap(
   opts: FastifyServerOptions
@@ -84,6 +85,12 @@ export default function instanceBootstrap(
   instance.register(bootstrap, {
     directory: join(__dirname, "controllers"),
     mask: /(\.)?(controller)\.(js|ts)$/,
+  });
+
+  // Augmentations
+  instance.decorateRequest("getRealIp", "");
+  instance.addHook("onRequest", (request) => {
+    request.getRealIp = () => getClientIp(request.raw);
   });
 
   return instance;
