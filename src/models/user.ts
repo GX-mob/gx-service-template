@@ -6,11 +6,6 @@ import {
   isValidMobilePhone,
 } from "@brazilian-utils/brazilian-utils";
 
-type UserPhone = {
-  code: number;
-  number: string;
-};
-
 export interface User {
   _id: any;
   firstName: string;
@@ -18,7 +13,7 @@ export interface User {
   cpf: string;
   primaryPhone: string;
   primaryEmail: string;
-  phones?: Types.Array<UserPhone>;
+  phones?: Types.Array<string>;
   emails?: Types.Array<string>;
   createdAt?: Date;
   updatedAt?: Date | null;
