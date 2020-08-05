@@ -21,7 +21,7 @@ describe("Model: User", () => {
     const user = new UserModel();
     const { errors } = user.validateSync();
 
-    expect(Object.keys(errors).length).toBe(6);
+    expect(Object.keys(errors).length).toBe(5);
   });
 
   it("should throw error due to invalid cpf", () => {

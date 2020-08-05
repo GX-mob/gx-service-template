@@ -11,7 +11,7 @@ import {
   Hook,
 } from "fastify-decorators";
 import { configureControllerTest } from "fastify-decorators/testing";
-import { SessionService } from "../services";
+import { SessionService, DataService } from "../services";
 import { AuthMiddleware } from "./auth";
 import { Types } from "mongoose";
 
@@ -76,6 +76,10 @@ describe("Middleware: Authentication/Authorization", () => {
       mocks: [
         { provide: FastifyInstanceToken, useValue: fastifyInstanceMock },
         { provide: SessionService, useValue: sessionServiceMock },
+        {
+          provide: DataService,
+          useValue: { users: { get: jest.fn().mockResolvedValue({}) } },
+        },
       ],
     });
   });

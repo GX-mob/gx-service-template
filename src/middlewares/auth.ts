@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { Hook, Inject, FastifyInstanceToken } from "fastify-decorators";
 import httpError from "http-errors";
-import { SessionService } from "../services";
+import { SessionService, DataService } from "../services";
 
 type AuthSettings = {
   groups: number[];
@@ -13,6 +13,9 @@ export class AuthMiddleware {
 
   @Inject(SessionService)
   private _session!: SessionService;
+
+  @Inject(DataService)
+  private _data!: DataService;
 
   public authSettings: AuthSettings = {
     groups: [1],
@@ -32,6 +35,8 @@ export class AuthMiddleware {
       if (!this._checkPermission(session.groups)) {
         return reply.send(new httpError.Forbidden());
       }
+
+      request.user = await this._data.users.get({ _id: session.uid });
     } catch (error) {
       this._instance.log.error(error);
       return reply.send(httpError(500));
