@@ -25,10 +25,9 @@ export const SessionSchema: Schema = new Schema(
   { collection: "sessions" }
 );
 
+/* istanbul ignore next */
 SessionSchema.pre<SessionDocument>("save", async function () {
-  /* istanbul ignore next */
   this.createdAt = new Date();
-  /* istanbul ignore next */
   this.active = true;
 });
 
