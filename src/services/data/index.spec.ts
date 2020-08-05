@@ -70,6 +70,8 @@ describe("Service: Data", () => {
   it("should create", async () => {
     cached = await users.create(mockUser);
 
+    mockUser.credential = cached.credential;
+
     expect(cached._id instanceof mongoose.Types.ObjectId).toBeTruthy();
 
     const persistent = await users.get({ _id: cached._id });

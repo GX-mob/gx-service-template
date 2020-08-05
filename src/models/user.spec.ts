@@ -3,7 +3,8 @@
  *
  * @group unit/models
  */
-import { UserModel } from "./user";
+import { UserModel, preSave } from "./user";
+import bcrypt from "bcrypt";
 
 const mockUser = {
   firstName: "First",
@@ -78,5 +79,25 @@ describe("Model: User", () => {
     expect(errors.phones.message).toBe(
       `55,988888888 has an invalid mobile phone`
     );
+  });
+
+  it("should validate credential", async () => {
+    const credential = "123";
+    const hash = await bcrypt.hash(credential, 10);
+    const user = new UserModel({ credential: hash });
+
+    await expect(user.compareCredential(credential)).resolves.toBeTruthy();
+  });
+
+  it("should hash credential on preSave", async () => {
+    const bcryptRegex = /^\$2[ayb]\$.{56}$/;
+
+    const mockObject = {
+      credential: "123",
+    };
+
+    await preSave.bind(mockObject)();
+
+    expect(bcryptRegex.test(mockObject.credential)).toBeTruthy();
   });
 });

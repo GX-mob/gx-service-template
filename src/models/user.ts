@@ -1,4 +1,5 @@
 import { Document, Schema, Types, model } from "mongoose";
+import bcrypt from "bcrypt";
 import {
   isValidCPF,
   isValidEmail,
@@ -28,6 +29,10 @@ export interface User {
 }
 
 export interface UserDocument extends User, Document {}
+
+interface UserModel extends UserDocument {
+  compareCredential(plain: string): Promise<boolean>;
+}
 
 export const UserSchema: Schema = new Schema(
   {
@@ -102,13 +107,20 @@ export const UserSchema: Schema = new Schema(
   { collection: "users" }
 );
 
-UserSchema.pre<UserDocument>("save", async function () {
+export async function preSave() {
   this.createdAt = new Date();
   this.groups = [1];
-});
+  this.credential = await bcrypt.hash(this.credential, 10);
+}
+
+UserSchema.pre("save", preSave);
 
 UserSchema.pre<UserDocument>("updateOne", async function () {
   this.set({ updatedAt: new Date() });
 });
 
-export const UserModel = model<UserDocument>("User", UserSchema);
+UserSchema.methods.compareCredential = function (plain: string) {
+  return bcrypt.compare(plain, this.credential);
+};
+
+export const UserModel = model<UserModel>("User", UserSchema);
