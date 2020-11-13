@@ -37,7 +37,7 @@
     "jsonwebtoken": "^8.5.1",
     "marked": "^1.1.1",
     "mongoose": "^5.9.27",
-    "nodemailer": "^6.4.10",
+    "nodemailer": "^6.4.16",
     "pino": "^6.5.0",
     "pngquant": "^3.1.0",
     "reflect-metadata": "^0.1.13",
