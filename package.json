@@ -45,7 +45,7 @@
     "schemapack": "^1.4.2",
     "source-map-support": "^0.5.19",
     "stream-file-type": "^0.5.0",
-    "twilio": "^3.48.1"
+    "twilio": "^4.6.0"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "^1.2.1",
